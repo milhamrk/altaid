@@ -1,4 +1,4 @@
-package store
+package repo
 
 import (
 	"fmt"
@@ -7,26 +7,26 @@ import (
 	"alta.id/go-skeleton/user"
 )
 
-type Store struct {
+type Repo struct {
 	users    []user.User
 	products []product.Product
 }
 
-func (s *Store) CreateUser(u user.User) {
+func (s *Repo) CreateUser(u user.User) {
 	s.users = append(s.users, u)
 }
 
-func (s *Store) CreateProduct(p product.Product) {
+func (s *Repo) CreateProduct(p product.Product) {
 	s.products = append(s.products, p)
 }
 
-func (s *Store) PrintUsers() {
+func (s *Repo) PrintUsers() {
 	for _, u := range s.users {
 		fmt.Printf("ID: %d, Name: %s\n", u.ID, u.Name)
 	}
 }
 
-func (s *Store) PrintProducts() {
+func (s *Repo) PrintProducts() {
 	for _, p := range s.products {
 		fmt.Printf("ID: %d, Name: %s\n", p.ID, p.Name)
 	}
