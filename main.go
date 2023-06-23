@@ -1,43 +1,57 @@
 package main
 
 import (
-	"encoding/json"
 	"net/http"
+	"strconv"
+
+	"github.com/labstack/echo"
 )
 
 type Buku struct {
 	ID        int    `json:"id"`
-	Judul     string `json:"judul"`
+	Judul     string `json:"judul" validation:"numeric,required"`
 	Pengarang string `json:"pengarang"`
 }
 
 var perpustakan []Buku
 
-func GetBooks(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(rw).Encode(perpustakan)
+func GetBooks(context echo.Context) error {
+	return context.JSON(http.StatusOK, perpustakan)
 }
 
-func CreateBooks(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("Content-Type", "application/json")
+func CreateBooks(context echo.Context) error {
 	var params Buku
-	err := json.NewDecoder(r.Body).Decode(&params)
+	err := context.Bind(&params)
 	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
-		return
+		return err
 	}
 
 	perpustakan = append(perpustakan, params)
-	rw.WriteHeader(http.StatusCreated)
-	json.NewEncoder(rw).Encode(perpustakan)
+	return context.JSON(http.StatusCreated, perpustakan)
 }
 
+func GetBookDetail(context echo.Context) error {
+	id := context.Param("id")
+	for _, buku := range perpustakan {
+		if strconv.Itoa(buku.ID) == id {
+			return context.JSON(http.StatusOK, buku)
+		}
+	}
+	return context.JSON(http.StatusNotFound, "Not Found")
+}
+
+// Make delete function
+
 func main() {
-	mux := http.NewServeMux()
+	e := echo.New()
 	perpustakan = []Buku{
 		{ID: 1, Judul: "Halo Book", Pengarang: "Siti"},
 	}
-	mux.HandleFunc("/books", GetBooks)
-	mux.HandleFunc("/create-books", CreateBooks)
-	http.ListenAndServe(":8000", mux)
+
+	// Routing
+	e.GET("/books", GetBooks)
+	e.GET("/books/:id", GetBookDetail)
+	e.POST("/create-books", CreateBooks)
+
+	e.Start(":8000")
 }
