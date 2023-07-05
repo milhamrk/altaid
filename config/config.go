@@ -8,7 +8,7 @@ import (
 
 var DB *gorm.DB
 
-const DSN = "root:root@/jekom?charset=utf8&parseTime=True&loc=Local"
+const DSN = "root:root@tcp(mamphost:3306)/jekom?charset=utf8&parseTime=True&loc=Local"
 
 func InitDB() {
 	var err error
