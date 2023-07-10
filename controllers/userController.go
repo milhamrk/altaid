@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"alta.id/go-skeleton/lib/database"
@@ -9,6 +10,7 @@ import (
 )
 
 func GetUserController(c echo.Context) error {
+	fmt.Println("HALLO")
 	users, e := database.GetUsers()
 
 	if e != nil {
