@@ -1,0 +1,72 @@
+package main
+
+import (
+	"net/http"
+
+	"github.com/labstack/echo"
+	"gorm.io/gorm"
+)
+
+var DB *gorm.DB
+
+const DSN = "root:root@/jekom?charset=utf8&parseTime=True&loc=Local"
+
+func GetBooks(context echo.Context) error {
+	var buku []Buku
+	if err := DB.Find(&buku).Error; err != nil {
+		return err
+	}
+	return context.JSON(http.StatusOK, buku)
+}
+
+func CreateBooks(context echo.Context) error {
+	var params Buku
+	err := context.Bind(&params)
+	if err != nil {
+		return err
+	}
+
+	if err := DB.Create(&params).Error; err != nil {
+		return err
+	}
+	return context.JSON(http.StatusCreated, params)
+}
+
+func updateUserController(c echo.Context) error {
+	id := c.Param("id")
+
+	var buku Buku
+	if err := DB.First(&buku, id).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]interface{}{
+			"error": "Buku not found",
+		})
+	}
+
+	if err := c.Bind(&buku); err != nil {
+		return c.JSON(http.StatusNotFound, map[string]interface{}{
+			"error": "Buku not found",
+		})
+	}
+
+	if err := DB.Save(&buku).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]interface{}{
+			"error": "Buku not found",
+		})
+	}
+
+	return c.JSON(http.StatusOK, buku)
+}
+
+func main() {
+	InitDB()
+	InitialMigration()
+
+	e := echo.New()
+
+	// Routing
+	e.GET("/books", GetBooks)
+	e.POST("/create-books", CreateBooks)
+	e.PUT("/books/:id", updateUserController)
+
+	e.Start(":8000")
+}
